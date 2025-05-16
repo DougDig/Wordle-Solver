@@ -1,35 +1,46 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+
+import React, { useState, useEffect } from "react";
+import wordList from "./words.json" ;
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [letters, setLetters] = useState(["", "", "", "", ""]);
+  const [matches, setMatches] = useState([]);
+
+  const handleInputChange = (index, value) => {
+    if (value.length > 1) return; 
+    const newLetters = [...letters];
+    newLetters[index] = value.toLowerCase();
+    setLetters(newLetters);
+  };
+
+  useEffect(() => {
+    const regex = new RegExp("^" + letters.map(l => (l ? l : ".")).join("") + "$");
+    const filteredWords = wordList.filter(word => regex.test(word));
+    setMatches(filteredWords);
+  }, [letters]);
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="app">
+      <h1>Word Puzzle Solver</h1>
+      <div className="letter-inputs">
+        {letters.map((letter, index) => (
+          <input
+            key={index}
+            type="text"
+            maxLength="1"
+            value={letter}
+            onChange={(e) => handleInputChange(index, e.target.value)}
+          />
+        ))}
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+      <h2>Possible Words:</h2>
+      <ul>
+        {matches.length > 0 ? matches.map((word, index) => (
+          <li key={index}>{word}</li>
+        )) : <p>No matches found</p>}
+      </ul>
+    </div>
+  );
 }
 
-export default App
+export default App;
